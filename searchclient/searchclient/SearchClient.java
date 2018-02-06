@@ -3,6 +3,7 @@ package searchclient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import searchclient.Memory;
@@ -20,17 +21,25 @@ public class SearchClient {
 			System.exit(1);
 		}
 
-		int row = 0;
+        ArrayList<ArrayList<Boolean>> walls = new ArrayList<>();
+		ArrayList<ArrayList<Character>> boxes = new ArrayList<>();
+        ArrayList<ArrayList<Character>> goals = new ArrayList<>();
+
+        int row = 0;
 		boolean agentFound = false;
-		this.initialState = new Node(null);
+        this.initialState = new Node(null);
 
 		while (!line.equals("")) {
 			for (int col = 0; col < line.length(); col++) {
 				char chr = line.charAt(col);
 
 				if (chr == '+') { // Wall.
-					this.initialState.walls[row][col] = true;
-				} else if ('0' <= chr && chr <= '9') { // Agent.
+					//this.initialState.walls[row][col] = true;
+					walls.get(row).add(true);
+
+				} else if (chr != '+') {
+				    walls.get(row).add(false);
+                } else if ('0' <= chr && chr <= '9') { // Agent.
 					if (agentFound) {
 						System.err.println("Error, not a single agent level");
 						System.exit(1);
@@ -39,9 +48,11 @@ public class SearchClient {
 					this.initialState.agentRow = row;
 					this.initialState.agentCol = col;
 				} else if ('A' <= chr && chr <= 'Z') { // Box.
-					this.initialState.boxes[row][col] = chr;
+					//this.initialState.boxes[row][col] = chr;
+					boxes.get(row).add(chr);
 				} else if ('a' <= chr && chr <= 'z') { // Goal.
-					this.initialState.goals[row][col] = chr;
+					//this.initialState.goals[row][col] = chr;
+					goals.get(row).add(chr);
 				} else if (chr == ' ') {
 					// Free space.
 				} else {
@@ -52,6 +63,24 @@ public class SearchClient {
 			line = serverMessages.readLine();
 			row++;
 		}
+		int MAX_ROW = walls.size();
+		int MAX_COL = walls.get(0).size();
+
+		char[][] boxesArray = new char[MAX_ROW][MAX_COL];
+        char[][] goalsArray = new char[MAX_ROW][MAX_COL];
+        boolean[][] wallsArray = new boolean[MAX_ROW][MAX_COL];
+
+        for (int i = 0; i < MAX_ROW; i++) {
+            ArrayList<Character> boxCol = boxes.get(i);
+            ArrayList<Boolean> wallCol = walls.get(i);
+            for (int j = 0; j < boxCol.size(); j++) {
+                boxesArray[i][j] = boxCol.get(j);
+            }
+        }
+
+        this.initialState.MAX_ROW = MAX_ROW;
+        this.initialState.MAX_COL = MAX_COL;
+		this.initialState.boxes = boxesArray;
 	}
 
 	public LinkedList<Node> Search(Strategy strategy) throws IOException {
@@ -93,6 +122,7 @@ public class SearchClient {
 
 		// Read level and create the initial state of the problem
 		SearchClient client = new SearchClient(serverMessages);
+
 
         Strategy strategy;
         if (args.length > 0) {

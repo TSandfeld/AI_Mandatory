@@ -2,6 +2,7 @@ package searchclient;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
+import java.util.PriorityQueue;
 import java.util.Stack;
 
 import searchclient.Memory;
@@ -55,8 +56,8 @@ public abstract class Strategy {
 
 		public StrategyBFS() {
 			super();
-			frontier = new ArrayDeque<Node>();
-			frontierSet = new HashSet<Node>();
+			frontier = new ArrayDeque<>();
+			frontierSet = new HashSet<>();
 		}
 
 		@Override
@@ -137,39 +138,45 @@ public abstract class Strategy {
 		}
 	}
 
-	// Ex 3: Best-first Search uses a priority queue (Java contains no implementation of a Heap data structure)
+	// Ex 4: Best-first Search uses a priority queue (Java contains no implementation of a Heap data structure)
 	public static class StrategyBestFirst extends Strategy {
 		private Heuristic heuristic;
+		private PriorityQueue<Node> frontier;
+		private HashSet<Node> frontierSet;
 
 		public StrategyBestFirst(Heuristic h) {
 			super();
 			this.heuristic = h;
-			throw new NotImplementedException();
+			this.frontier = new PriorityQueue<>();
+			this.frontierSet = new HashSet<>();
 		}
 
 		@Override
 		public Node getAndRemoveLeaf() {
-			throw new NotImplementedException();
+			Node n = this.frontier.poll();
+			this.frontierSet.remove(n);
+			return n;
 		}
 
 		@Override
 		public void addToFrontier(Node n) {
-			throw new NotImplementedException();
-		}
+            this.frontier.add(n);
+            this.frontierSet.add(n);
+        }
 
 		@Override
 		public int countFrontier() {
-			throw new NotImplementedException();
+			return this.frontier.size();
 		}
 
 		@Override
 		public boolean frontierIsEmpty() {
-			throw new NotImplementedException();
+			return this.frontier.isEmpty();
 		}
 
 		@Override
 		public boolean inFrontier(Node n) {
-			throw new NotImplementedException();
+			return  this.frontier.contains(n);
 		}
 
 		@Override

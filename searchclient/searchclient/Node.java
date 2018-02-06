@@ -9,10 +9,10 @@ import java.util.Random;
 import searchclient.Command.Type;
 
 public class Node {
-	private static final Random RND = new Random(1);
+	private static final Random RND = new Random(2);
 
-	public static int MAX_ROW = 70;
-	public static int MAX_COL = 70;
+	public int MAX_ROW = 70;
+	public int MAX_COL = 70;
 
 	public int agentRow;
 	public int agentCol;
