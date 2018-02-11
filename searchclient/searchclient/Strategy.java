@@ -147,8 +147,9 @@ public abstract class Strategy {
 		public StrategyBestFirst(Heuristic h) {
 			super();
 			this.heuristic = h;
-			this.frontier = new PriorityQueue<>();
+			this.frontier = new PriorityQueue<>(h);
 			this.frontierSet = new HashSet<>();
+
 		}
 
 		@Override

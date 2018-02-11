@@ -2,9 +2,6 @@ package searchclient;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-
-import searchclient.NotImplementedException;
 
 class Tuple<X,Y> {
 	public final X x;
@@ -16,8 +13,8 @@ class Tuple<X,Y> {
 }
 
 public abstract class Heuristic implements Comparator<Node> {
-	HashMap<Character, Tuple<Integer, Integer>> goalPositions = new HashMap<>();
-	HashMap<Character, Tuple<Integer, Integer>> boxPositions = new HashMap<>();
+	HashMap<String, Tuple<Integer, Integer>> goalPositions = new HashMap<>();
+	HashMap<String, Tuple<Integer, Integer>> boxPositions = new HashMap<>();
 
 	public Heuristic(Node initialState) {
 		// Here's a chance to pre-process the static parts of the level.
@@ -39,26 +36,62 @@ public abstract class Heuristic implements Comparator<Node> {
 				char boxChr = boxes[row][col];
 
 				if ('a' <= goalChr && goalChr <= 'z') { // goal
-					this.goalPositions.put(goalChr, new Tuple<>(row, col));
+					this.goalPositions.put(goalChr + row + "" + col, new Tuple<>(row, col));
 				}
 
 				if ('A' <= boxChr && boxChr <= 'Z') {
-					this.boxPositions.put(boxChr, new Tuple<>(row, col));
+					this.boxPositions.put(boxChr + row + "" + col, new Tuple<>(row, col));
 				}
 			}
 		}
 	}
 
+	public int findDistances(Node n) {
+		HashMap<String, Tuple<Integer, Integer>> goalToBoxesDistances = new HashMap<>();
+
+		for (String goalKey : this.goalPositions.keySet()) {
+			String currentMinName = "NaN";
+			Tuple<Integer, Integer> currentMinDistanceBoxTuple = new Tuple<>(0,0);
+			int currentMinDistance = (int) Math.pow(10,5);
+
+			Tuple<Integer, Integer> goalPosition = this.goalPositions.get(goalKey);
+			int a = goalPosition.x;
+			int b = goalPosition.y;
+
+			for (String boxKey : this.boxPositions.keySet()) {
+				Tuple<Integer, Integer> boxPosition = this.boxPositions.get(boxKey);
+				int c = boxPosition.x;
+				int d = boxPosition.y;
+
+				int manhattanDistance = Math.abs(a - c) + Math.abs(b - d);
+
+				if (manhattanDistance < currentMinDistance) {
+					currentMinName = goalKey + boxKey;
+					currentMinDistance = manhattanDistance;
+					currentMinDistanceBoxTuple = new Tuple<>(c,d);
+				}
+			}
+
+			goalToBoxesDistances.put(currentMinName, currentMinDistanceBoxTuple);
+		}
+
+		int sum = 0;
+		for (String distanceKey : goalToBoxesDistances.keySet()) {
+			Tuple<Integer, Integer> boxPosition = goalToBoxesDistances.get(distanceKey);
+
+			int agentToBoxManhattanDistance = Math.abs(n.agentRow - boxPosition.x) - Math.abs(n.agentCol - boxPosition.y);
+
+			sum += agentToBoxManhattanDistance;
+		}
+
+		return sum;
+	}
+
 	public int h(Node n) {
-		// Heurstics: Straight-line
+		// Heuristics: Manhattan
 		findPositions(n);
 
-		int agentRow = n.agentRow;
-		int agentCol = n.agentCol;
-
-		
-
-		throw new NotImplementedException();
+		return findDistances(n);
 	}
 
 	public abstract int f(Node n);
