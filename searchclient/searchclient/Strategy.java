@@ -177,7 +177,7 @@ public abstract class Strategy {
 
 		@Override
 		public boolean inFrontier(Node n) {
-			return  this.frontier.contains(n);
+			return  this.frontierSet.contains(n);
 		}
 
 		@Override
